@@ -1,7 +1,7 @@
 package it.unisalento.pas.taxbe.configurations;
 
-import it.unisalento.pas.wastedisposalagencybe.security.JwtTokenConverter;
-import it.unisalento.pas.wastedisposalagencybe.security.JwtTokenValidator;
+import it.unisalento.pas.taxbe.security.JwtTokenConverter;
+import it.unisalento.pas.taxbe.security.JwtTokenValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,8 +34,13 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         //only authorized can get api
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers(HttpMethod.GET, "/api/user/exist/{userID}").hasAnyAuthority(SecurityConstants.OPERATOR_ROLE_ID)
-                
+                        .requestMatchers(HttpMethod.POST, "/api/fee/create").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.DELETE, "/api/fee/delete/{feeId}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.POST, "/api/fee/pay/{feeId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/fee/get/user/{userId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/fee/get/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/fee/get/paid/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(
                         jwt -> jwt.jwtAuthenticationConverter(jwtTokenConverter)

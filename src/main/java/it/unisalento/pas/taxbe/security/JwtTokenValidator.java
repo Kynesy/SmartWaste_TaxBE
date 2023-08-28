@@ -1,6 +1,6 @@
 package it.unisalento.pas.taxbe.security;
 
-import it.unisalento.pas.wastedisposalagencybe.configurations.SecurityConstants;
+import it.unisalento.pas.taxbe.configurations.SecurityConstants;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
