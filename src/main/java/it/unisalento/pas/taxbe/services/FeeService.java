@@ -56,6 +56,15 @@ public class FeeService implements IFeeService{
     }
 
     @Override
+    public WasteStatistics getAllRegistredWasteByUserID(String userId, int year) {
+        List<Fee> feeList = feeRepository.findAllByUserId(userId);
+        WasteStatistics paidWastes = sumWastes(feeList);
+        paidWastes.setUserId(userId);
+        paidWastes.setYear(year);
+        return paidWastes;
+    }
+
+    @Override
     public ArrayList<Fee> getAllFees() {
         List<Fee> feeList = feeRepository.findAll();
         return new ArrayList<>(feeList);

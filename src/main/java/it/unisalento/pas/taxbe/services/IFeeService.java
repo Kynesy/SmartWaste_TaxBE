@@ -10,6 +10,9 @@ public interface IFeeService {
     int deleteFee(String feeId);
     int payFee(String feeId);
     ArrayList<Fee> getAllFeeByUserID(String userId);
+
+    WasteStatistics getAllRegistredWasteByUserID(String userId, int year);
+
     ArrayList<Fee> getAllFees();
     WasteStatistics getNumberOfPaidWastesByUserID(String userId, int year);
     WasteStatistics getNumberOfWastesByPayment(int year, int paid);
