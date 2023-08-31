@@ -1,9 +1,11 @@
 package it.unisalento.pas.taxbe.utils;
 
 import it.unisalento.pas.taxbe.domains.Fee;
+import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.domains.WasteStatistics;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class FeeUtils {
     private final static float SORTED_KG_VALUE = 2;
@@ -38,5 +40,39 @@ public class FeeUtils {
         fee.setPaid(0);
 
         return fee;
+    }
+
+    public static WasteStatistics sumWastes(List<Fee> feeList) {
+        WasteStatistics statistics = new WasteStatistics();
+
+        statistics.setTotalUnsortedWaste(0);
+        statistics.setTotalSortedWaste(0);
+
+        for (Fee fee :
+                feeList) {
+            statistics.setTotalSortedWaste(statistics.getTotalSortedWaste() + fee.getSortedWaste());
+            statistics.setTotalUnsortedWaste(statistics.getTotalUnsortedWaste() + fee.getUnsortedWaste());
+        }
+
+        return statistics;
+    }
+
+    public static FeeStatistics sumFees(List<Fee> feeList) {
+        FeeStatistics feeStatistics = new FeeStatistics();
+
+        feeStatistics.setTotalSortedWaste(0);
+        feeStatistics.setTotalUnsortedWaste(0);
+        feeStatistics.setTotalSortedTax(0);
+        feeStatistics.setTotalUnsortedTax(0);
+
+        for (Fee fee :
+                feeList) {
+            feeStatistics.setTotalUnsortedTax(feeStatistics.getTotalUnsortedTax() + fee.getUnsortedTax());
+            feeStatistics.setTotalUnsortedWaste(feeStatistics.getTotalUnsortedWaste() + fee.getUnsortedWaste());
+            feeStatistics.setTotalSortedTax(feeStatistics.getTotalSortedTax() + fee.getSortedTax());
+            feeStatistics.setTotalSortedWaste(feeStatistics.getTotalSortedWaste() + fee.getSortedWaste() );
+        }
+
+        return feeStatistics;
     }
 }
