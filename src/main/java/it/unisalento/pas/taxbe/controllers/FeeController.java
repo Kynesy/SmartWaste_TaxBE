@@ -2,10 +2,13 @@ package it.unisalento.pas.taxbe.controllers;
 
 
 import it.unisalento.pas.taxbe.domains.Fee;
+import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.domains.WasteStatistics;
 import it.unisalento.pas.taxbe.dto.FeeDTO;
+import it.unisalento.pas.taxbe.dto.FeeStatisticsDTO;
 import it.unisalento.pas.taxbe.dto.WasteStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IFeeService;
+import it.unisalento.pas.taxbe.services.IStatsService;
 import it.unisalento.pas.taxbe.utils.FeeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,24 +21,32 @@ import java.util.ArrayList;
 @RequestMapping("/api/fee")
 public class FeeController {
     private final IFeeService feeService;
+    private final IStatsService statsService;
 
     @Autowired
-    public FeeController(IFeeService feeService) {
+    public FeeController(IFeeService feeService, IStatsService statsService) {
         this.feeService = feeService;
+        this.statsService = statsService;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<String> createFee(@RequestBody WasteStatisticsDTO statisticsDTO){
-        WasteStatistics newStat = fromStatisticsDTOtoStatistics(statisticsDTO);
-        WasteStatistics oldStat = feeService.getAllRegistredWasteByUserID(newStat.getUserId(), newStat.getYear());
+    @PostMapping("/create/all")
+    public ResponseEntity<ArrayList<FeeDTO>> createFee(@RequestBody ArrayList<WasteStatisticsDTO> wasteStatListDTO){
+        ArrayList<FeeDTO> createdFees = new ArrayList<>();
 
-        Fee feeToCreate = FeeUtils.calculateFee(newStat, oldStat);
-        if(feeToCreate != null){
-            feeService.createFee(feeToCreate);
-            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Fee created successfully\"}");
-        }else{
-            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"No new wastes to fee\"}");
+        for (WasteStatisticsDTO wasteStatDTO :
+                wasteStatListDTO) {
+            WasteStatistics newStat = fromStatisticsDTOtoStatistics(wasteStatDTO);
+            WasteStatistics oldStat = statsService.getAllRegisteredWasteByUserID(newStat.getUserId(), newStat.getYear());
+
+            Fee feeToCreate = FeeUtils.calculateFee(newStat, oldStat);
+            if (feeToCreate != null) {
+                feeService.createFee(feeToCreate);
+                FeeDTO feeDTO = fromFeeToFeeDTO(feeToCreate);
+                createdFees.add(feeDTO);
+            }
         }
+
+        return ResponseEntity.ok(createdFees);
     }
 
     @DeleteMapping("/delete/{feeId}")
@@ -84,25 +95,34 @@ public class FeeController {
         return ResponseEntity.ok(feeListDTO);
     }
 
-    @GetMapping("/get/paid/{year}/{paidStatus}")
-    public ResponseEntity<WasteStatisticsDTO> getByPaidStatus(@PathVariable int year, @PathVariable int paidStatus){
-        WasteStatistics statistics = feeService.getNumberOfWastesByPayment(year, paidStatus);
-        WasteStatisticsDTO statisticsDTO = fromStatisticsToStatisticsDTO(statistics);
+    @GetMapping("/statistics/paid/{year}/{paidStatus}")
+    public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable int year, @PathVariable int paidStatus){
+        FeeStatistics statistics = statsService.getSumOfAllFeesByPayment(year, paidStatus);
+        FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
         
         return ResponseEntity.ok(statisticsDTO);
     }
 
-    private WasteStatisticsDTO fromStatisticsToStatisticsDTO(WasteStatistics statistics) {
-        WasteStatisticsDTO statisticsDTO = new WasteStatisticsDTO();
+    @GetMapping("/statistics/user/paid/{userId}/{year}/{paidStatus}")
+    public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable String userId, @PathVariable int year, @PathVariable int paidStatus){
+        FeeStatistics statistics = statsService.getSumOfAllUserFeesByPayment(userId, year, paidStatus);
+        FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
 
-        statisticsDTO.setUserId(statistics.getUserId());
-        statisticsDTO.setYear(statistics.getYear());
-        statisticsDTO.setTotalSortedWaste(statistics.getTotalSortedWaste());
-        statisticsDTO.setTotalUnsortedWaste(statistics.getTotalUnsortedWaste());
-
-        return statisticsDTO;
+        return ResponseEntity.ok(statisticsDTO);
     }
 
+    private FeeStatisticsDTO fromFeeStatisticsToFeeStatisticsDTO(FeeStatistics statistics) {
+        FeeStatisticsDTO feeStatisticsDTO = new FeeStatisticsDTO();
+
+        feeStatisticsDTO.setPaid(statistics.getPaid());
+        feeStatisticsDTO.setTotalSortedTax(statistics.getTotalSortedTax());
+        feeStatisticsDTO.setTotalUnsortedTax(statistics.getTotalUnsortedTax());
+        feeStatisticsDTO.setTotalSortedWaste(statistics.getTotalSortedWaste());
+        feeStatisticsDTO.setTotalUnsortedWaste(statistics.getTotalUnsortedWaste());
+        feeStatisticsDTO.setYear(statistics.getYear());
+
+        return feeStatisticsDTO;
+    }
 
     private FeeDTO fromFeeToFeeDTO(Fee fee) {
         FeeDTO feeDTO = new FeeDTO();

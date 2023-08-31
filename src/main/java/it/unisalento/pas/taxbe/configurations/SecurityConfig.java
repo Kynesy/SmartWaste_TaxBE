@@ -34,12 +34,13 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         //only authorized can get api
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers(HttpMethod.POST, "/api/fee/create").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.POST, "/api/fee/create/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
                         .requestMatchers(HttpMethod.DELETE, "/api/fee/delete/{feeId}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
                         .requestMatchers(HttpMethod.POST, "/api/fee/pay/{feeId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/user/{userId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
-                        .requestMatchers(HttpMethod.GET, "/api/fee/get/paid/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/fee/statistics/paid/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/fee/statistics/user/paid/{userId}/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
 
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(
