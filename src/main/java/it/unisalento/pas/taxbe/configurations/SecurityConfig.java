@@ -21,27 +21,42 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Configuration class responsible for setting up security features in the backend application.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    // Create an instance of JwtTokenConverter
     private final JwtTokenConverter jwtTokenConverter = new JwtTokenConverter();
 
+    /**
+     * Configure the security filter chain for HTTP requests.
+     *
+     * @param http The HttpSecurity object to configure.
+     * @return The configured SecurityFilterChain.
+     * @throws Exception If there's an error during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Configure Cross-Origin Resource Sharing (CORS)
         http.cors(httpSecurityCorsConfigurer -> {
             httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource());
         });
+
+        // Disable Cross-Site Request Forgery (CSRF) protection
         http.csrf(AbstractHttpConfigurer::disable);
-        //only authorized can get api
+
+        // Configure authorization rules for different HTTP endpoints
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(HttpMethod.POST, "/api/fee/create/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
                         .requestMatchers(HttpMethod.DELETE, "/api/fee/delete/{feeId}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
                         .requestMatchers(HttpMethod.POST, "/api/fee/pay/{feeId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/user/{userId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
-                        .requestMatchers(HttpMethod.GET, "/api/fee/statistics/paid/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
-                        .requestMatchers(HttpMethod.GET, "/api/fee/statistics/user/paid/{userId}/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
 
+                        .requestMatchers(HttpMethod.GET, "/api/statistics/all/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/statistics/user/{userId}/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(
                         jwt -> jwt.jwtAuthenticationConverter(jwtTokenConverter)
@@ -50,6 +65,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configure the CORS (Cross-Origin Resource Sharing) settings.
+     *
+     * @return The CorsConfigurationSource with CORS settings.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -63,6 +83,11 @@ public class SecurityConfig {
         return source;
     }
 
+    /**
+     * Configure the JWT (JSON Web Token) decoder for authentication.
+     *
+     * @return The configured JwtDecoder.
+     */
     @Bean
     JwtDecoder jwtDecoder() {
         NimbusJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromOidcIssuerLocation(SecurityConstants.ISSUER_LIST[0]);

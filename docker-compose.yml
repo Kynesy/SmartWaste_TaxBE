@@ -1,6 +1,7 @@
 version: "3"
 
 services:
+  # container del backend del microservizio tasse
   taxBE:
     image: openjdk:17-jdk-alpine
     container_name: taxBE
@@ -18,6 +19,7 @@ services:
     working_dir: /app
     entrypoint: java -Xdebug -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000 -jar /app/app.jar
 
+  # container del database del microservizio
   taxDB:
     image: mongo:5.0
     container_name: taxDB
@@ -26,6 +28,7 @@ services:
     networks:
       - taxNetwork
 
+# rete interna del microservizio
 networks:
   taxNetwork:
     driver:

@@ -1,11 +1,8 @@
 package it.unisalento.pas.taxbe.controllers;
 
-
 import it.unisalento.pas.taxbe.domains.Fee;
-import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.domains.WasteStatistics;
 import it.unisalento.pas.taxbe.dto.FeeDTO;
-import it.unisalento.pas.taxbe.dto.FeeStatisticsDTO;
 import it.unisalento.pas.taxbe.dto.WasteStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IFeeService;
 import it.unisalento.pas.taxbe.services.IStatsService;
@@ -17,24 +14,38 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
+/**
+ * Questa classe gestisce le richieste relative alle tariffe e alle statistiche delle tariffe.
+ */
 @RestController
 @RequestMapping("/api/fee")
 public class FeeController {
     private final IFeeService feeService;
     private final IStatsService statsService;
 
+    /**
+     * Costruttore della classe FeeController.
+     *
+     * @param feeService   Servizio per le tariffe
+     * @param statsService Servizio per le statistiche delle tariffe
+     */
     @Autowired
     public FeeController(IFeeService feeService, IStatsService statsService) {
         this.feeService = feeService;
         this.statsService = statsService;
     }
 
+    /**
+     * Crea tariffe basate sulle statistiche dei rifiuti fornite.
+     *
+     * @param wasteStatListDTO Lista di statistiche dei rifiuti in formato DTO
+     * @return ResponseEntity contenente le tariffe create in formato DTO
+     */
     @PostMapping("/create/all")
-    public ResponseEntity<ArrayList<FeeDTO>> createFee(@RequestBody ArrayList<WasteStatisticsDTO> wasteStatListDTO){
+    public ResponseEntity<ArrayList<FeeDTO>> createFee(@RequestBody ArrayList<WasteStatisticsDTO> wasteStatListDTO) {
         ArrayList<FeeDTO> createdFees = new ArrayList<>();
 
-        for (WasteStatisticsDTO wasteStatDTO :
-                wasteStatListDTO) {
+        for (WasteStatisticsDTO wasteStatDTO : wasteStatListDTO) {
             WasteStatistics newStat = fromStatisticsDTOtoStatistics(wasteStatDTO);
             WasteStatistics oldStat = statsService.getAllRegisteredWasteByUserID(newStat.getUserId(), newStat.getYear());
 
@@ -49,31 +60,48 @@ public class FeeController {
         return ResponseEntity.ok(createdFees);
     }
 
+    /**
+     * Elimina una tariffa in base all'ID.
+     *
+     * @param feeId ID della tariffa da eliminare
+     * @return ResponseEntity con un messaggio di conferma o errore
+     */
     @DeleteMapping("/delete/{feeId}")
-    public ResponseEntity<String> deleteFee(@PathVariable String feeId){
-        if(feeService.deleteFee(feeId) == 0){
-            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Fee deleted successfully\"}");
-        }else{
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Error deleting fee\"}");
+    public ResponseEntity<String> deleteFee(@PathVariable String feeId) {
+        if (feeService.deleteFee(feeId) == 0) {
+            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Tariffa eliminata con successo\"}");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"message\": \"Errore nell'eliminazione della tariffa\"}");
         }
     }
 
+    /**
+     * Registra il pagamento di una tariffa in base all'ID.
+     *
+     * @param feeId ID della tariffa da pagare
+     * @return ResponseEntity con un messaggio di conferma o errore
+     */
     @PostMapping("/pay/{feeId}")
-    public ResponseEntity<String> payFee(@PathVariable String feeId){
-        if(feeService.payFee(feeId) == 0){
-            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Fee paid\"}");
-        }else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Fee not found\"}");
+    public ResponseEntity<String> payFee(@PathVariable String feeId) {
+        if (feeService.payFee(feeId) == 0) {
+            return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Tariffa pagata\"}");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\": \"Tariffa non trovata\"}");
         }
     }
 
+    /**
+     * Ottiene tutte le tariffe di un utente in base all'ID dell'utente.
+     *
+     * @param userId ID dell'utente
+     * @return ResponseEntity contenente le tariffe dell'utente in formato DTO
+     */
     @GetMapping("/get/user/{userId}")
-    public ResponseEntity<ArrayList<FeeDTO>> getAllByUserId(@PathVariable String userId){
+    public ResponseEntity<ArrayList<FeeDTO>> getAllByUserId(@PathVariable String userId) {
         ArrayList<Fee> feeList = feeService.getAllFeeByUserID(userId);
         ArrayList<FeeDTO> feeListDTO = new ArrayList<>();
 
-        for (Fee fee :
-                feeList) {
+        for (Fee fee : feeList) {
             FeeDTO feeDTO = fromFeeToFeeDTO(fee);
             feeListDTO.add(feeDTO);
         }
@@ -81,13 +109,17 @@ public class FeeController {
         return ResponseEntity.ok(feeListDTO);
     }
 
+    /**
+     * Ottiene tutte le tariffe.
+     *
+     * @return ResponseEntity contenente tutte le tariffe in formato DTO
+     */
     @GetMapping("/get/all")
-    public ResponseEntity<ArrayList<FeeDTO>> getAll(){
+    public ResponseEntity<ArrayList<FeeDTO>> getAll() {
         ArrayList<Fee> feeList = feeService.getAllFees();
         ArrayList<FeeDTO> feeListDTO = new ArrayList<>();
 
-        for (Fee fee :
-                feeList) {
+        for (Fee fee : feeList) {
             FeeDTO feeDTO = fromFeeToFeeDTO(fee);
             feeListDTO.add(feeDTO);
         }
@@ -95,35 +127,12 @@ public class FeeController {
         return ResponseEntity.ok(feeListDTO);
     }
 
-    @GetMapping("/statistics/paid/{year}/{paidStatus}")
-    public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable int year, @PathVariable int paidStatus){
-        FeeStatistics statistics = statsService.getSumOfAllFeesByPayment(year, paidStatus);
-        FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
-        
-        return ResponseEntity.ok(statisticsDTO);
-    }
-
-    @GetMapping("/statistics/user/paid/{userId}/{year}/{paidStatus}")
-    public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable String userId, @PathVariable int year, @PathVariable int paidStatus){
-        FeeStatistics statistics = statsService.getSumOfAllUserFeesByPayment(userId, year, paidStatus);
-        FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
-
-        return ResponseEntity.ok(statisticsDTO);
-    }
-
-    private FeeStatisticsDTO fromFeeStatisticsToFeeStatisticsDTO(FeeStatistics statistics) {
-        FeeStatisticsDTO feeStatisticsDTO = new FeeStatisticsDTO();
-
-        feeStatisticsDTO.setPaid(statistics.getPaid());
-        feeStatisticsDTO.setTotalSortedTax(statistics.getTotalSortedTax());
-        feeStatisticsDTO.setTotalUnsortedTax(statistics.getTotalUnsortedTax());
-        feeStatisticsDTO.setTotalSortedWaste(statistics.getTotalSortedWaste());
-        feeStatisticsDTO.setTotalUnsortedWaste(statistics.getTotalUnsortedWaste());
-        feeStatisticsDTO.setYear(statistics.getYear());
-
-        return feeStatisticsDTO;
-    }
-
+    /**
+     * Converte un oggetto Fee in un oggetto FeeDTO.
+     *
+     * @param fee Tariffa
+     * @return FeeDTO contenente la tariffa in formato DTO
+     */
     private FeeDTO fromFeeToFeeDTO(Fee fee) {
         FeeDTO feeDTO = new FeeDTO();
 
@@ -139,6 +148,12 @@ public class FeeController {
         return feeDTO;
     }
 
+    /**
+     * Converte un oggetto WasteStatisticsDTO in un oggetto WasteStatistics.
+     *
+     * @param statisticsDTO Statistiche dei rifiuti in formato DTO
+     * @return WasteStatistics contenente le statistiche dei rifiuti
+     */
     private WasteStatistics fromStatisticsDTOtoStatistics(WasteStatisticsDTO statisticsDTO) {
         WasteStatistics statistics = new WasteStatistics();
 
@@ -149,5 +164,4 @@ public class FeeController {
 
         return statistics;
     }
-
 }
