@@ -55,8 +55,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/user/{userId}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .requestMatchers(HttpMethod.GET, "/api/fee/get/all").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
 
-                        .requestMatchers(HttpMethod.GET, "/api/statistics/all/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
-                        .requestMatchers(HttpMethod.GET, "/api/statistics/user/{userId}/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/stats/all/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.ADMIN_ROLE_ID)
+                        .requestMatchers(HttpMethod.GET, "/api/stats/user/{userId}/{year}/{paidStatus}").hasAnyAuthority(SecurityConstants.USER_ROLE_ID)
                         .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(
                         jwt -> jwt.jwtAuthenticationConverter(jwtTokenConverter)

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Questa classe gestisce le richieste relative alle statistiche delle tariffe.
  */
 @RestController
-@RequestMapping("/api/statistics")
+@RequestMapping("/api/stats")
 public class StatsController {
     private final IStatsService statsService;
 
@@ -33,7 +33,7 @@ public class StatsController {
      * @param paidStatus Stato di pagamento delle tariffe (1 per pagate, 0 per non pagate)
      * @return ResponseEntity contenente le statistiche delle tariffe in formato DTO
      */
-    @GetMapping("/statistics/all/{year}/{paidStatus}")
+    @GetMapping("/all/{year}/{paidStatus}")
     public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable int year, @PathVariable int paidStatus) {
         FeeStatistics statistics = statsService.getSumOfAllFeesByPayment(year, paidStatus);
         FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
@@ -49,7 +49,7 @@ public class StatsController {
      * @param paidStatus Stato di pagamento delle tariffe (1 per pagate, 0 per non pagate)
      * @return ResponseEntity contenente le statistiche delle tariffe dell'utente in formato DTO
      */
-    @GetMapping("/statistics/user/{userId}/{year}/{paidStatus}")
+    @GetMapping("/user/{userId}/{year}/{paidStatus}")
     public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable String userId, @PathVariable int year, @PathVariable int paidStatus) {
         FeeStatistics statistics = statsService.getSumOfAllUserFeesByPayment(userId, year, paidStatus);
         FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
