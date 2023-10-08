@@ -41,27 +41,10 @@ public class FeeControllerTest {
 
     @Test
     void createFeeTest() throws Exception {
-        WasteStatisticsDTO newWasteStatDTO = new WasteStatisticsDTO();
-        newWasteStatDTO.setUserId("mockUserId");
-        newWasteStatDTO.setYear(2023);
-        newWasteStatDTO.setTotalSortedWaste(200);
-        newWasteStatDTO.setTotalUnsortedWaste(200);
 
-        WasteStatistics paidStats = new WasteStatistics();
-        paidStats.setYear(2023);
-        paidStats.setUserId("mockUserId");
-        paidStats.setTotalSortedWaste(100);
-        paidStats.setTotalUnsortedWaste(100);
-
-        Gson gson = new Gson();
-        String json = gson.toJson(newWasteStatDTO);
-
-        when(statsService.getAllRegisteredWasteByUserID("mockUserId", 2023)).thenReturn(paidStats);
-        when(feeService.createFee(new Fee())).thenReturn(0);
 
         mockMvc.perform(post("/api/fee/create/all")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
                         .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
                 .andExpect(status().isOk());
     }
