@@ -48,8 +48,24 @@ public class FeeControllerTest {
         newWasteStatDTO.setTotalSortedWaste(200);
         newWasteStatDTO.setTotalUnsortedWaste(200);
 
+        WasteStatistics newWasteStat = new WasteStatistics();
+        newWasteStat.setUserId("mockUserId");
+        newWasteStat.setYear(2023);
+        newWasteStat.setTotalSortedWaste(200);
+        newWasteStat.setTotalUnsortedWaste(200);
+
+        WasteStatistics paidStats = new WasteStatistics();
+        paidStats.setYear(2023);
+        paidStats.setUserId("mockUserId");
+        paidStats.setTotalSortedWaste(100);
+        paidStats.setTotalUnsortedWaste(100);
+
         Gson gson = new Gson();
         String json = gson.toJson(new ArrayList<>(List.of(newWasteStatDTO)));
+        
+        Fee feetocreate = FeeUtils.calculateFee(newWasteStat, paidStats);
+        when(statsService.getAllRegisteredWasteByUserID("mockUserId", 2023)).thenReturn(paidStats);
+        when(feeService.createFee(feetocreate)).thenReturn(0);
 
         mockMvc.perform(post("/api/fee/create/all")
                         .contentType(MediaType.APPLICATION_JSON)
