@@ -62,7 +62,7 @@ public class FeeControllerTest {
 
         Gson gson = new Gson();
         String json = gson.toJson(new ArrayList<>(List.of(newWasteStatDTO)));
-        
+
         Fee feetocreate = FeeUtils.calculateFee(newWasteStat, paidStats);
         when(statsService.getAllRegisteredWasteByUserID("mockUserId", 2023)).thenReturn(paidStats);
         when(feeService.createFee(feetocreate)).thenReturn(0);
