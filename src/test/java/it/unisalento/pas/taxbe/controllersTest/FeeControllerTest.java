@@ -7,6 +7,7 @@ import it.unisalento.pas.taxbe.domains.WasteStatistics;
 import it.unisalento.pas.taxbe.dto.WasteStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IFeeService;
 import it.unisalento.pas.taxbe.services.IStatsService;
+import it.unisalento.pas.taxbe.utils.FeeUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,7 +57,7 @@ public class FeeControllerTest {
         String json = gson.toJson(newWasteStatDTO);
 
         when(statsService.getAllRegisteredWasteByUserID("mockUserId", 2023)).thenReturn(paidStats);
-        when(feeService.createFee(any())).thenReturn(0);
+        when(feeService.createFee(new Fee())).thenReturn(0);
 
         mockMvc.perform(post("/api/fee/create/all")
                         .contentType(MediaType.APPLICATION_JSON)
