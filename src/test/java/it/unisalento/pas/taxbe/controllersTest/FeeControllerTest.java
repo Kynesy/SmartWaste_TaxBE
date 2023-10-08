@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -60,7 +61,7 @@ public class FeeControllerTest {
         paidStats.setTotalUnsortedWaste(100);
 
         Gson gson = new Gson();
-        String json = gson.toJson(newWasteStatDTO);
+        String json = gson.toJson(new ArrayList<>(List.of(newWasteStatDTO)));
 
 
         Fee feetocreate = FeeUtils.calculateFee(newWasteStat, paidStats);
