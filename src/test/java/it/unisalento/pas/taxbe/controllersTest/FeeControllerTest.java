@@ -1,17 +1,10 @@
 package it.unisalento.pas.taxbe.controllersTest;
 
-import com.jayway.jsonpath.internal.Utils;
 import com.nimbusds.jose.shaded.gson.Gson;
 import it.unisalento.pas.taxbe.configurations.SecurityConstants;
-import it.unisalento.pas.taxbe.controllers.FeeController;
 import it.unisalento.pas.taxbe.domains.Fee;
-import it.unisalento.pas.taxbe.domains.FeeStatistics;
-import it.unisalento.pas.taxbe.domains.WasteStatistics;
-import it.unisalento.pas.taxbe.dto.FeeDTO;
 import it.unisalento.pas.taxbe.dto.WasteStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IFeeService;
-import it.unisalento.pas.taxbe.services.IStatsService;
-import it.unisalento.pas.taxbe.utils.FeeUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -106,7 +99,8 @@ public class FeeControllerTest {
 
         when(feeService.getAllFees()).thenReturn(new ArrayList<>(Arrays.asList(fee)));
 
-        mockMvc.perform(get("/api/fee/get/all"))
+        mockMvc.perform(get("/api/fee/get/all")
+                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("mockFeeId"));
     }

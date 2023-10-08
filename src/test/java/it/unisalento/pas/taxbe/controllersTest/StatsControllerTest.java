@@ -1,5 +1,6 @@
 package it.unisalento.pas.taxbe.controllersTest;
 
+import it.unisalento.pas.taxbe.configurations.SecurityConstants;
 import it.unisalento.pas.taxbe.controllers.StatsController;
 import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.dto.FeeStatisticsDTO;
@@ -10,11 +11,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -40,7 +43,8 @@ public class StatsControllerTest {
 
         when(statsService.getSumOfAllFeesByPayment(anyInt(), anyInt())).thenReturn(statistics);
 
-        mockMvc.perform(get("/api/stats/all/2023/1"))
+        mockMvc.perform(get("/api/stats/all/2023/1")
+                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paid").value(1))
                 .andExpect(jsonPath("$.totalSortedTax").value(100))
@@ -62,7 +66,8 @@ public class StatsControllerTest {
 
         when(statsService.getSumOfAllUserFeesByPayment(anyString(), anyInt(), anyInt())).thenReturn(statistics);
 
-        mockMvc.perform(get("/api/stats/user/mockUserID/2023/1"))
+        mockMvc.perform(get("/api/stats/user/mockUserID/2023/1")
+                        .with(user("user").authorities(new SimpleGrantedAuthority(SecurityConstants.USER_ROLE_ID))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paid").value(1))
                 .andExpect(jsonPath("$.totalSortedTax").value(100))
