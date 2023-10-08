@@ -3,8 +3,10 @@ package it.unisalento.pas.taxbe.controllersTest;
 import com.nimbusds.jose.shaded.gson.Gson;
 import it.unisalento.pas.taxbe.configurations.SecurityConstants;
 import it.unisalento.pas.taxbe.domains.Fee;
+import it.unisalento.pas.taxbe.domains.WasteStatistics;
 import it.unisalento.pas.taxbe.dto.WasteStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IFeeService;
+import it.unisalento.pas.taxbe.services.IStatsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,6 +35,9 @@ public class FeeControllerTest {
     @MockBean
     private IFeeService feeService;
 
+    @MockBean
+    private IStatsService statsService;
+
     @Test
     void createFeeTest() throws Exception {
         WasteStatisticsDTO newWasteStatDTO = new WasteStatisticsDTO();
@@ -41,16 +46,22 @@ public class FeeControllerTest {
         newWasteStatDTO.setTotalSortedWaste(200);
         newWasteStatDTO.setTotalUnsortedWaste(200);
 
+        WasteStatistics paidStats = new WasteStatistics();
+        paidStats.setYear(2023);
+        paidStats.setUserId("mockUserId");
+        paidStats.setTotalSortedWaste(100);
+        paidStats.setTotalUnsortedWaste(100);
+
         Gson gson = new Gson();
         String json = gson.toJson(newWasteStatDTO);
 
+        when(statsService.getAllRegisteredWasteByUserID("mockUserId", 2023)).thenReturn(paidStats);
         when(feeService.createFee(any())).thenReturn(0);
 
         mockMvc.perform(post("/api/fee/create/all")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
                         .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
-
                 .andExpect(status().isOk());
     }
 
