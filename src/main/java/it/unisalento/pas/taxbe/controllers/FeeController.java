@@ -10,6 +10,7 @@ import it.unisalento.pas.taxbe.utils.FeeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class FeeController {
      * @return ResponseEntity contenente le tariffe create in formato DTO
      */
     @PostMapping("/create/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ArrayList<FeeDTO>> createFee(@RequestBody ArrayList<WasteStatisticsDTO> wasteStatListDTO) {
         ArrayList<FeeDTO> createdFees = new ArrayList<>();
 
@@ -67,6 +69,7 @@ public class FeeController {
      * @return ResponseEntity con un messaggio di conferma o errore
      */
     @DeleteMapping("/delete/{feeId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteFee(@PathVariable String feeId) {
         if (feeService.deleteFee(feeId) == 0) {
             return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Tariffa eliminata con successo\"}");
@@ -82,6 +85,7 @@ public class FeeController {
      * @return ResponseEntity con un messaggio di conferma o errore
      */
     @PostMapping("/pay/{feeId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> payFee(@PathVariable String feeId) {
         if (feeService.payFee(feeId) == 0) {
             return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"Tariffa pagata\"}");
@@ -97,6 +101,7 @@ public class FeeController {
      * @return ResponseEntity contenente le tariffe dell'utente in formato DTO
      */
     @GetMapping("/get/user/{userId}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ArrayList<FeeDTO>> getAllByUserId(@PathVariable String userId) {
         ArrayList<Fee> feeList = feeService.getAllFeeByUserID(userId);
         ArrayList<FeeDTO> feeListDTO = new ArrayList<>();
@@ -115,6 +120,7 @@ public class FeeController {
      * @return ResponseEntity contenente tutte le tariffe in formato DTO
      */
     @GetMapping("/get/all")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ArrayList<FeeDTO>> getAll() {
         ArrayList<Fee> feeList = feeService.getAllFees();
         ArrayList<FeeDTO> feeListDTO = new ArrayList<>();
