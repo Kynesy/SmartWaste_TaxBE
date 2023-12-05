@@ -23,7 +23,7 @@ deploy_procedure:
     - chmod 400 $SSH_KEY
   script:
     - ssh -o StrictHostKeyChecking=no -i $SSH_KEY ubuntu@$SSH_IP "
-      cd /home/ubuntu/taxbe/ &&
+      cd /home/ubuntu/taxBE/ &&
       sudo git pull origin &&
       sudo docker compose down &&
       sudo docker compose build --no-cache &&
