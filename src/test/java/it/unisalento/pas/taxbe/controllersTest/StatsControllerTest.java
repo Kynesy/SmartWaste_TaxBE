@@ -40,7 +40,7 @@ public class StatsControllerTest {
         when(statsService.getSumOfAllFeesByPayment(anyInt(), anyInt())).thenReturn(statistics);
 
         mockMvc.perform(get("/api/stats/all/2023/1")
-                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
+                        .with(user("admin").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paid").value(1))
                 .andExpect(jsonPath("$.totalSortedTax").value(100))
@@ -63,7 +63,7 @@ public class StatsControllerTest {
         when(statsService.getSumOfAllUserFeesByPayment(anyString(), anyInt(), anyInt())).thenReturn(statistics);
 
         mockMvc.perform(get("/api/stats/user/mockUserID/2023/1")
-                        .with(user("user").authorities(new SimpleGrantedAuthority(SecurityConstants.USER_ROLE_ID))))
+                        .with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paid").value(1))
                 .andExpect(jsonPath("$.totalSortedTax").value(100))

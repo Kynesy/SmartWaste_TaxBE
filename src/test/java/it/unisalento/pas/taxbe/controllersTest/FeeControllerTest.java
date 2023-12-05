@@ -69,7 +69,7 @@ public class FeeControllerTest {
         mockMvc.perform(post("/api/fee/create/all")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
+                        .with(user("admin").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isOk());
     }
 
@@ -80,7 +80,7 @@ public class FeeControllerTest {
         when(feeService.deleteFee(feeId)).thenReturn(0);
 
         mockMvc.perform(delete("/api/fee/delete/{feeId}", feeId)
-                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
+                        .with(user("admin").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"message\": \"Tariffa eliminata con successo\"}"));
     }
@@ -92,7 +92,7 @@ public class FeeControllerTest {
         when(feeService.payFee(feeId)).thenReturn(0);
 
         mockMvc.perform(post("/api/fee/pay/{feeId}", feeId)
-                        .with(user("user").authorities(new SimpleGrantedAuthority(SecurityConstants.USER_ROLE_ID))))
+                        .with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"message\": \"Tariffa pagata\"}"));
     }
@@ -106,7 +106,7 @@ public class FeeControllerTest {
         when(feeService.getAllFeeByUserID(userId)).thenReturn(new ArrayList<>(Arrays.asList(fee)));
 
         mockMvc.perform(get("/api/fee/get/user/{userId}", userId)
-                        .with(user("user").authorities(new SimpleGrantedAuthority(SecurityConstants.USER_ROLE_ID))))
+                        .with(user("user").authorities(new SimpleGrantedAuthority("ROLE_USER"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("mockFeeId"));
     }
@@ -119,7 +119,7 @@ public class FeeControllerTest {
         when(feeService.getAllFees()).thenReturn(new ArrayList<>(Arrays.asList(fee)));
 
         mockMvc.perform(get("/api/fee/get/all")
-                        .with(user("admin").authorities(new SimpleGrantedAuthority(SecurityConstants.ADMIN_ROLE_ID))))
+                        .with(user("admin").authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("mockFeeId"));
     }
