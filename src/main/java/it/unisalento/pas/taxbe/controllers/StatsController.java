@@ -4,6 +4,7 @@ import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.dto.FeeStatisticsDTO;
 import it.unisalento.pas.taxbe.services.IStatsService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,7 @@ public class StatsController {
      * @return ResponseEntity contenente le statistiche delle tariffe in formato DTO
      */
     @GetMapping("/all/{year}/{paidStatus}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable int year, @PathVariable int paidStatus) {
         FeeStatistics statistics = statsService.getSumOfAllFeesByPayment(year, paidStatus);
         FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
@@ -50,6 +52,7 @@ public class StatsController {
      * @return ResponseEntity contenente le statistiche delle tariffe dell'utente in formato DTO
      */
     @GetMapping("/user/{userId}/{year}/{paidStatus}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<FeeStatisticsDTO> getByPaidStatus(@PathVariable String userId, @PathVariable int year, @PathVariable int paidStatus) {
         FeeStatistics statistics = statsService.getSumOfAllUserFeesByPayment(userId, year, paidStatus);
         FeeStatisticsDTO statisticsDTO = fromFeeStatisticsToFeeStatisticsDTO(statistics);
