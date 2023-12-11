@@ -6,7 +6,7 @@ services:
     image: openjdk:17-jdk-alpine
     container_name: taxBE
     ports:
-      - "81:8080"
+      - "8080:8080"
       - "8002:8000"
     expose:
       - "8002"
