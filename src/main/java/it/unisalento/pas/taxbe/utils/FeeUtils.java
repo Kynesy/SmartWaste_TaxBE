@@ -9,6 +9,7 @@ import it.unisalento.pas.taxbe.domains.FeeStatistics;
 import it.unisalento.pas.taxbe.domains.WasteStatistics;
 
 import java.time.LocalDate;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -83,7 +84,10 @@ public class FeeUtils {
         statistics.setTotalUnsortedWaste(0);
         statistics.setTotalSortedWaste(0);
 
-        for (Fee fee : feeList) {
+        Iterator<Fee> iterator = feeList.iterator();
+
+        while (iterator.hasNext()){
+            Fee fee = iterator.next();
             statistics.setTotalSortedWaste(statistics.getTotalSortedWaste() + fee.getSortedWaste());
             statistics.setTotalUnsortedWaste(statistics.getTotalUnsortedWaste() + fee.getUnsortedWaste());
         }
@@ -105,7 +109,10 @@ public class FeeUtils {
         feeStatistics.setTotalSortedTax(0);
         feeStatistics.setTotalUnsortedTax(0);
 
-        for (Fee fee : feeList) {
+        Iterator<Fee> iterator = feeList.iterator();
+
+        while (iterator.hasNext()){
+            Fee fee = iterator.next();
             feeStatistics.setTotalUnsortedTax(feeStatistics.getTotalUnsortedTax() + fee.getUnsortedTax());
             feeStatistics.setTotalUnsortedWaste(feeStatistics.getTotalUnsortedWaste() + fee.getUnsortedWaste());
             feeStatistics.setTotalSortedTax(feeStatistics.getTotalSortedTax() + fee.getSortedTax());
